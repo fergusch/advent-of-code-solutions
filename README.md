@@ -1,9 +1,6 @@
-# Advent of Code 2020
-My solutions for [Advent of Code 2020](https://adventofcode.com/2020), written in Python.
+# Advent of Code Solutions
+My solutions for [Advent of Code](https://adventofcode.com/), written in Python.
 
-My goal for each day is to solve the puzzle as quickly as possible, so my code isn't the prettiest or most efficient.
+My goal here is to solve each question as quickly as I can as well as learn new ways to use (and abuse) the Python language. Code will not necessarily be pretty or efficient.
 
-To run the code for a particular day:
-```
-cd 01 && python3 solution.py
-```
+Solutions are organized by year and then by question. Each folder contains my personal input (`input.txt`) and the code (`solution.py`) which will print out the solution to each part on a new line. Extra packages used are listed in `requirements.txt` for that year.
