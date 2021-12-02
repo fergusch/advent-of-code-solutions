@@ -3,13 +3,11 @@
 ## day 01
 ## ALT: using only list comprehensions
 
-with open('input.txt', 'r') as f:
-    depths = [int(x) for x in f.readlines()]
+def parse_input(lines):
+    return [int(x) for x in lines]
 
-# part one ------------------------------------------------
+def part1(depths):
+    return sum([depths[i] > depths[i-1] for i in range(1, len(depths))])
 
-print(sum([depths[i] > depths[i-1] for i in range(1, len(depths))]))
-
-# part two ------------------------------------------------
-
-print(sum([sum(depths[i-2:i+1]) > sum(depths[i-3:i]) for i in range(3, len(depths))]))
+def part2(depths):
+    return sum([sum(depths[i-2:i+1]) > sum(depths[i-3:i]) for i in range(3, len(depths))])
