@@ -7,6 +7,7 @@ from enum import Enum
 from bs4 import BeautifulSoup
 from markdownify import markdownify
 from termcolor import colored
+from tabulate import tabulate
 
 class Status(Enum):
     PASS = 0
@@ -57,22 +58,53 @@ def submit_answer(year, day, level, answer):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print('usage: python aoc.py <command> <year>/<day-zero-padded> [solution_file]')
-        print('commands:')
-        print('  - get: download input and part 1 prompt to directory <year>/<day>')
-        print('  - dry: dry-run; prints out answers without submitting')
-        print('  - submit: submits the last unsubmitted answer, downloads part 2 prompt if not completed')
-        print('solution_file (optional):')
-        print('  - name of the solution file to run; default is "solution" for solution.py')
-        print('  - if specified, "dry" will also compare output to solution.py output for correctness')
+        print('usage:\n')
+        print('  (dates are YYYY/DD format)\n')
+        print(colored('  aoc.py get YEAR/DAY', 'magenta'))
+        print('    create directory ./YEAR/DAY/, download input and part 1 prompt,')
+        print('    and generate solution.py template\n')
+        print(colored('  aoc.py dry YEAR/DAY [SOLUTION_FILE]', 'magenta'))
+        print('    dry run: print solution.py output for YEAR/DAY without submitting')
+        print('    - if SOLUTION_FILE is specified, print output of that file and')
+        print('      compare to solution.py output.\n')
+        print(colored('  aoc.py submit YEAR/DAY [SOLUTION_FILE]', 'magenta'))
+        print('    run solution.py and submit answers for YEAR/DAY')
+        print('    - if part 2 is unsolved, submit part 1 and append part 2 text to prompt file.')
+        print('    - if both parts are solved, submit part 2.')
+        print('    - if SOLUTION_FILE is specified and answers not yet submitted,')
+        print('      submit answers using that file instead.\n')
+        print(colored('  aoc.py stats YEAR', 'magenta'))
+        print('    check progress and personal leaderboard stats for YEAR\n')
         sys.exit(0)
 
     command = sys.argv[1]
-    year, day = sys.argv[2].split('/')
+    year, day = sys.argv[2].split('/') if '/' in sys.argv[2] else (sys.argv[2], '')
     solution_file = 'solution' if len(sys.argv) < 4 else sys.argv[3]
     cookies = {'session': os.environ['ADVENT_SESSION']}
 
-    if command == 'get':
+    if command == 'stats':
+
+        r = requests.get(f'https://adventofcode.com/{year}/leaderboard/self', cookies=cookies)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        table = soup.select('article pre')[0].text
+        table_rows = [x.split() for x in table.split('\n')[2:-1]]
+        stars_per_day = [0]*25
+        for row in table_rows:
+            stars_per_day[int(row[0])-1] = 2 if row[4:7] != ['-', '-', '-'] else 1 if row[1:4] != ['-', '-', '-'] else 0
+        
+        print()
+        print(colored('(Part 1)', 'cyan'), colored('(Part 2)', 'yellow'))
+        print('\n         1111111111222222\n1234567890123456789012345')
+        for day in stars_per_day:
+            print(colored('*', 'yellow') if day == 2 else colored('*', 'cyan') if day == 1 else ' ', end='')
+        print(f" ({sum(stars_per_day)}{colored('*', 'yellow')})\n")
+
+        print(tabulate(table_rows, headers=['Day', 
+            *[colored(x, 'cyan') for x in ['Time', 'Rank', 'Score']],
+            *[colored(x, 'yellow') for x in ['Time', 'Rank', 'Score']]
+        ]), '\n')
+    
+    elif command == 'get':
         
         os.mkdir(f'{year}/{day}')
 
