@@ -43,15 +43,17 @@ def submit_answer(year, day, level, answer):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print('usage: python aoc.py <command> <year>/<day-zero-padded>')
+        print('usage: python aoc.py <command> <year>/<day-zero-padded> [solution_file]')
         print('commands:')
         print('  - get: download input and part 1 prompt to directory <year>/<day>')
         print('  - dry: dry-run; prints out answers without submitting')
         print('  - submit: submits the last unsubmitted answer, downloads part 2 prompt if not completed')
+        print('solution_file (optional): name of the solution file to run; default is "solution" for solution.py')
         sys.exit(0)
 
     command = sys.argv[1]
     year, day = sys.argv[2].split('/')
+    solution_file = 'solution' if len(sys.argv) < 4 else sys.argv[3]
     cookies = {'session': os.environ['ADVENT_SESSION']}
 
     if command == 'get':
@@ -79,7 +81,7 @@ if __name__ == '__main__':
 
     else:
 
-        solution = import_module(f'{year}.{day}.solution')
+        solution = import_module(f'{year}.{day}.{solution_file}')
 
         with open(f'{year}/{day}/input.txt', 'r') as f:
             data = solution.parse_input(f.readlines())
