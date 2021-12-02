@@ -93,7 +93,7 @@ if __name__ == '__main__':
                     'def part1(data):\n    pass\n\n' + \
                     'def part2(data):\n    pass')
 
-        print('Downloaded part 1 prompt.')
+        print(f'Downloaded part 1 prompt to {year}/{day}/prompt.md')
 
     else:
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                     with open(f'{year}/{day}/prompt.md', 'a') as f:
                         f.write(markdownify(part2_html).replace('\n\n', '\n'))
                         
-                    print('Downloaded part 2 prompt.')
+                    print(f'Appended part 2 prompt to {year}/{day}/prompt.md')
 
             else:
                 status = submit_answer(year, day, '2', part2_answer)
