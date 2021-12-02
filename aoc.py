@@ -15,6 +15,20 @@ class Status(Enum):
     COMPLETED = 3
     UNKNOWN = 4
 
+def compute_answers(year, day, file):
+
+    solution = import_module(f'{year}.{day}.{file}')
+
+    with open(f'{year}/{day}/input.txt', 'r') as f:
+        data = solution.parse_input(f.readlines())
+    if not isinstance(data, tuple):
+        data = (data,)
+
+    part1_answer = solution.part1(*data)
+    part2_answer = solution.part2(*data)
+
+    return part1_answer, part2_answer
+
 def submit_answer(year, day, level, answer):
     payload = {'level': level, 'answer': answer}
     r = requests.post(f'https://adventofcode.com/{year}/day/{int(day)}/answer', data=payload, cookies=cookies)
@@ -48,7 +62,9 @@ if __name__ == '__main__':
         print('  - get: download input and part 1 prompt to directory <year>/<day>')
         print('  - dry: dry-run; prints out answers without submitting')
         print('  - submit: submits the last unsubmitted answer, downloads part 2 prompt if not completed')
-        print('solution_file (optional): name of the solution file to run; default is "solution" for solution.py')
+        print('solution_file (optional):')
+        print('  - name of the solution file to run; default is "solution" for solution.py')
+        print('  - if specified, "dry" will also compare output to solution.py output for correctness')
         sys.exit(0)
 
     command = sys.argv[1]
@@ -81,18 +97,20 @@ if __name__ == '__main__':
 
     else:
 
-        solution = import_module(f'{year}.{day}.{solution_file}')
-
-        with open(f'{year}/{day}/input.txt', 'r') as f:
-            data = solution.parse_input(f.readlines())
-        if not isinstance(data, tuple):
-            data = (data,)
-
-        part1_answer = solution.part1(*data)
-        part2_answer = solution.part2(*data)
+        part1_answer, part2_answer = compute_answers(year, day, solution_file)
 
         if command == 'dry':
+
             print(part1_answer, part2_answer)
+
+            if solution_file != 'solution':
+                part1_orig_ans, part2_orig_ans = compute_answers(year, day, 'solution')
+                if (part1_orig_ans, part2_orig_ans) == (part1_answer, part2_answer):
+                    print(colored('Output matches solution.py', 'green'))
+                else:
+                    print(colored('Output does not match solution.py:', 'red'))
+                    print(colored(part1_orig_ans, 'red'), colored(part2_orig_ans, 'red'))
+            
             sys.exit(0)
 
         elif command == 'submit':
