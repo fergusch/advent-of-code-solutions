@@ -84,13 +84,17 @@ if __name__ == '__main__':
     year, day = sys.argv[2].split('/') if '/' in sys.argv[2] else (sys.argv[2], '')
     solution_file = 'solution' if len(sys.argv) < 4 else sys.argv[3]
     cookies = {'session': os.environ['ADVENT_SESSION']}
+    private_leaderboards = []
 
     if command == 'stats':
 
         # I know this is a bad way to do this, but isn't that the fun of this whole thing?
         if solution_file == 'private':
 
-            private_leaderboards = os.environ['ADVENT_PRIV_BOARDS'].split(',')
+            try:
+                private_leaderboards = os.environ['ADVENT_PRIV_BOARDS'].split(',')
+            except KeyError:
+                print(colored('You are not a member of any private leaderboards.', 'red'))
 
             for board_id in private_leaderboards:
 
@@ -138,18 +142,35 @@ if __name__ == '__main__':
             stars_per_day = [0]*25
             for row in table_rows:
                 stars_per_day[int(row[0])-1] = 2 if row[4:7] != ['-', '-', '-'] else 1 if row[1:4] != ['-', '-', '-'] else 0
-            
-            print()
-            print(colored('(Part 1)', 'cyan'), colored('(Part 2)', 'yellow'))
+
             print('\n         1111111111222222\n1234567890123456789012345')
-            for day in stars_per_day:
-                print(colored('*', 'yellow') if day == 2 else colored('*', 'cyan') if day == 1 else ' ', end='')
+            for i, stars in enumerate(stars_per_day):
+                today = dt.now(pytz.timezone('America/New_York'))
+                if stars == 2:
+                    print(colored('*', 'yellow'), end='')
+                elif stars == 1:
+                    print(colored('*', 'cyan'), end='')
+                elif stars == 0 and today.year == int(year) and today.day < i+1:
+                    print(' ', end='')
+                else:
+                    print(colored('*', 'grey'), end='')
+
             print(f" ({sum(stars_per_day)}{colored('*', 'yellow')})\n")
 
             print(tabulate(table_rows, headers=['Day', 
                 *[colored(x, 'cyan') for x in ['Time', 'Rank', 'Score']],
                 *[colored(x, 'yellow') for x in ['Time', 'Rank', 'Score']]
             ]), '\n')
+            print(colored('(Part 1)', 'cyan'), colored('(Part 2)', 'yellow'))
+            print()
+
+            try:
+                private_leaderboards = os.environ['ADVENT_PRIV_BOARDS'].split(',')
+            except KeyError:
+                sys.exit(0)
+
+            print(colored(f'You are a member of {len(private_leaderboards)} private leaderboard(s).', 'grey'))
+            print(colored(f'Use "aoc.py stats {year} private" to see them.\n', 'grey'))
     
     elif command == 'get':
         
