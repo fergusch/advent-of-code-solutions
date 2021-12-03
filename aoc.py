@@ -60,7 +60,7 @@ def submit_answer(year, day, level, answer):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print('usage:\n')
+        print('\nusage:\n')
         print('  (dates are YYYY/DD format)\n')
         print(colored('  aoc.py get YEAR/DAY', 'magenta'))
         print('    create directory ./YEAR/DAY/, download input and part 1 prompt,')
@@ -78,6 +78,10 @@ if __name__ == '__main__':
         print(colored('  aoc.py stats YEAR [private]', 'magenta'))
         print('    check progress and personal leaderboard stats for YEAR')
         print('    - if "private" passed, show configured private leaderboard stats.\n')
+        print('configuration environment variables:\n')
+        print(' ', colored('ADVENT_SESSION', 'magenta'), '    : AoC session cookie', colored('(required)', 'red'))
+        print(' ', colored('ADVENT_PRIV_BOARDS', 'magenta'), ': comma-separated list of private leaderboard IDs\n')
+        sys.exit(0)
         sys.exit(0)
 
     command = sys.argv[1]
