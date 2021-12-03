@@ -82,7 +82,6 @@ if __name__ == '__main__':
         print(' ', colored('ADVENT_SESSION', 'magenta'), '    : AoC session cookie', colored('(required)', 'red'))
         print(' ', colored('ADVENT_PRIV_BOARDS', 'magenta'), ': comma-separated list of private leaderboard IDs\n')
         sys.exit(0)
-        sys.exit(0)
 
     command = sys.argv[1]
     year, day = sys.argv[2].split('/') if '/' in sys.argv[2] else (sys.argv[2], '')
@@ -95,9 +94,9 @@ if __name__ == '__main__':
         # I know this is a bad way to do this, but isn't that the fun of this whole thing?
         if solution_file == 'private':
 
-            try:
+            if 'ADVENT_PRIV_BOARDS' in os.environ:
                 private_leaderboards = os.environ['ADVENT_PRIV_BOARDS'].split(',')
-            except KeyError:
+            else:
                 print(colored('You are not a member of any private leaderboards.', 'red'))
 
             for board_id in private_leaderboards:
@@ -168,9 +167,9 @@ if __name__ == '__main__':
             print(colored('(Part 1)', 'cyan'), colored('(Part 2)', 'yellow'))
             print()
 
-            try:
+            if 'ADVENT_PRIV_BOARDS' in os.environ:
                 private_leaderboards = os.environ['ADVENT_PRIV_BOARDS'].split(',')
-            except KeyError:
+            else:
                 sys.exit(0)
 
             print(colored(f'You are a member of {len(private_leaderboards)} private leaderboard(s).', 'grey'))
