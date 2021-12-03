@@ -7,7 +7,7 @@ from datetime import datetime as dt
 from enum import Enum
 from bs4 import BeautifulSoup
 from markdownify import markdownify
-from termcolor import colored
+from termcolor import colored as termcolor_colored
 from tabulate import tabulate
 import pytz
 
@@ -17,6 +17,17 @@ class Status(Enum):
     RATE_LIMIT = 2
     COMPLETED = 3
     UNKNOWN = 4
+
+def colored(text, color):
+    if 'ADVENT_DISABLE_TERMCOLOR' in os.environ and os.environ['ADVENT_DISABLE_TERMCOLOR'] == '1':
+        if text == '*':
+            if color == 'cyan':
+                return '/'
+            elif color == 'grey':
+                return '.'
+        return text
+    else:
+        return termcolor_colored(text, color)
 
 def compute_answers(year, day, file):
 
@@ -79,8 +90,9 @@ if __name__ == '__main__':
         print('    check progress and personal leaderboard stats for YEAR')
         print('    - if "private" passed, show configured private leaderboard stats.\n')
         print('configuration environment variables:\n')
-        print(' ', colored('ADVENT_SESSION', 'magenta'), '    : AoC session cookie', colored('(required)', 'red'))
-        print(' ', colored('ADVENT_PRIV_BOARDS', 'magenta'), ': comma-separated list of private leaderboard IDs\n')
+        print(' ', colored('ADVENT_SESSION', 'magenta'), '          : AoC session cookie', colored('(required)', 'red'))
+        print(' ', colored('ADVENT_PRIV_BOARDS', 'magenta'), '      : comma-separated list of private leaderboard IDs')
+        print(' ', colored('ADVENT_DISABLE_TERMCOLOR', 'magenta'), ': set to "1" to disable coloring terminal output\n')
         sys.exit(0)
 
     command = sys.argv[1]
@@ -133,7 +145,7 @@ if __name__ == '__main__':
                     print(f'({colored(name_link, "blue")})' if name_link is not None else '')
                 
                 print()
-                print(colored('(1 star)', 'cyan'), colored('(2 stars)', 'yellow'), colored('(0 stars)', 'grey'), '\n')
+                print(f'({colored("*", "yellow")} 2 stars) ({colored("*", "cyan")} 1 star) ({colored("*", "grey")} 0 stars)\n')
                 
 
         else:
@@ -159,13 +171,12 @@ if __name__ == '__main__':
                     print(colored('*', 'grey'), end='')
 
             print(f" ({sum(stars_per_day)}{colored('*', 'yellow')})\n")
+            print(f'({colored("*", "yellow")} 2 stars) ({colored("*", "cyan")} 1 star) ({colored("*", "grey")} 0 stars)\n')
 
-            print(tabulate(table_rows, headers=['Day', 
-                *[colored(x, 'cyan') for x in ['Time', 'Rank', 'Score']],
-                *[colored(x, 'yellow') for x in ['Time', 'Rank', 'Score']]
+            print(tabulate(table_rows, stralign='right', headers=['\nDay', 
+                *['\n'.join([colored(y, 'cyan') for y in x.split('\n')]) for x in ['----\nTime', '(Part 1)\nRank', '----\nScore']],
+                *['\n'.join([colored(y, 'yellow') for y in x.split('\n')]) for x in ['----\nTime', '(Part 2)\nRank', '----\nScore']]
             ]), '\n')
-            print(colored('(Part 1)', 'cyan'), colored('(Part 2)', 'yellow'))
-            print()
 
             if 'ADVENT_PRIV_BOARDS' in os.environ:
                 private_leaderboards = os.environ['ADVENT_PRIV_BOARDS'].split(',')
