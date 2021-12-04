@@ -2,46 +2,39 @@
 ## https://adventofcode.com/2021
 ## day 04
 
-# bingos bonted?
+# bingos bonted? 👽
 
-from itertools import chain
+import numpy as np
 
 def parse_input(lines):
-    numbers = [x.strip() for x in lines[0].split(',')]
+    numbers = [int(x.strip()) for x in lines[0].split(',')]
     boards = []
-    i = 1
-    while i < len(lines):
-        boards.append([line.split() for line in lines[i+1:i+6]])
+    i = 2
+    while i <= len(lines):
+        boards.append([int(x) for x in ' '.join([line.strip() for line in lines[i:i+5]]).split()])
         i += 6
-    return numbers, boards
+    return np.array(numbers), np.array(boards)
 
 def check_win(board):
-    for i in range(5):
-        if board[i] == ['x']*5 or [board[j][i] for j in range(5)] == ['x']*5:
-            return True
-    return False
+    board_matrix = np.reshape(board, (5, 5))
+    return np.any([[np.isnan(board_matrix[i]).all() for i in range(5)],
+                  [np.isnan(board_matrix.transpose()[i]).all() for i in range(5)]])
 
 def part1(numbers, boards):
     for num in numbers:
-        for i, board in enumerate(boards):
-            for j in range(5):
-                for k in range(5):
-                    if board[j][k] == num:
-                        boards[i][j][k] = 'x'
-                        if check_win(boards[i]):
-                            return sum([int(n) for n in chain.from_iterable(boards[i]) if n != 'x'])*int(num)
+        boards = np.where(boards == num, np.nan, boards)
+        board_states = np.array([check_win(board) for board in boards])
+        if np.any(board_states):
+            return int(np.nansum(boards[np.argmax(board_states)])*num)
+
 
 def part2(numbers, boards):
-    winning_boards = set()
+    last = -1
     for num in numbers:
-        for i, board in enumerate(boards):
-            if i in winning_boards: continue
-            for j in range(5):
-                for k in range(5):
-                    if boards[i][j][k] == num:
-                        boards[i][j][k] = 'x'
-                        if check_win(boards[i]):
-                            if len(winning_boards) == (len(boards)-1):
-                                return sum([int(n) for n in chain.from_iterable(boards[i]) if n != 'x'])*int(num)
-                            else:
-                                winning_boards.add(i)
+        boards = np.where(boards == num, np.nan, boards)
+        board_states = np.array([check_win(board) for board in boards])
+        if np.count_nonzero(~board_states) == 1:
+            last = np.argmin(board_states)
+        if last > -1:
+            if board_states[last]:
+                return int(np.nansum(boards[last])*num)
